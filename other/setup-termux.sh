@@ -9,10 +9,10 @@ W="$(printf '\033[0m')"
 BOLD="$(printf '\033[1m')"
 
 _check_termux() {
-	if [[ $HOME != *termux* ]]; then
-	echo "${R}[${R}☓${R}]${R}${BOLD}Please run it inside termux${W}"
-	exit 0
-	fi
+    if [[ $HOME != *termux* ]]; then
+        echo "${R}[${R}☓${R}]${R}${BOLD}Please run it inside termux${W}"
+        exit 0
+    fi
 }
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
@@ -40,15 +40,15 @@ _command_exists() {
 }
 
 _print_success() {
-	local msg
-	msg="$1"
-	echo "${R}[${G}✓${R}]${G} $msg${W}"
+    local msg
+    msg="$1"
+    echo "${R}[${G}✓${R}]${G} $msg${W}"
 }
 
 _print_failed() {
-	local msg
-	msg="$1"
-	echo "${R}[${R}☓${R}]${R} $msg${W}"
+    local msg
+    msg="$1"
+    echo "${R}[${R}☓${R}]${R} $msg${W}"
 }
 
 _check_and_create_directory() {
@@ -60,7 +60,7 @@ _check_and_create_directory() {
 # first check then delete
 _check_and_delete() {
     local file
-	local files_folders
+    local files_folders
     for files_folders in "$@"; do
         for file in $files_folders; do
             if [[ -e "$file" ]]; then
@@ -76,34 +76,34 @@ _check_and_delete() {
 
 # first check then backup
 _check_and_backup() {
-	local file
-	local files_folders
+    local file
+    local files_folders
     for files_folders in "$@"; do
         for file in $files_folders; do
             if [[ -e "$file" ]]; then
-            local date_str
-			date_str=$(date +"%d-%m-%Y")
-			local backup="${file}-${date_str}.bak"
-			    if [[ -e "$backup" ]]; then
-				echo "${R}[${C}-${R}]${G} Backup file ${C}${backup} ${G}already exists${W}"
-				echo
-				fi
-		    echo "${R}[${C}-${R}]${G} Backing up file ${C}$file${W}"
-			mv "$1" "$backup"
+                local date_str
+                date_str=$(date +"%d-%m-%Y")
+                local backup="${file}-${date_str}.bak"
+                if [[ -e "$backup" ]]; then
+                    echo "${R}[${C}-${R}]${G} Backup file ${C}${backup} ${G}already exists${W}"
+                    echo
+                fi
+                echo "${R}[${C}-${R}]${G} Backing up file ${C}$file${W}"
+                mv "$1" "$backup"
             fi
         done
     done
 }
 
 _detact_package_manager() {
-	source "/data/data/com.termux/files/usr/bin/termux-setup-package-manager"
-	if [[ "$TERMUX_APP_PACKAGE_MANAGER" == "apt" ]]; then
-	PACKAGE_MANAGER="apt"
-	elif [[ "$TERMUX_APP_PACKAGE_MANAGER" == "pacman" ]]; then
-	PACKAGE_MANAGER="pacman"
-	else
-	_print_failed "${C} Could not detact your package manager, Switching To ${C}pkg ${W}" 
-	fi
+    source "/data/data/com.termux/files/usr/bin/termux-setup-package-manager"
+    if [[ "$TERMUX_APP_PACKAGE_MANAGER" == "apt" ]]; then
+        PACKAGE_MANAGER="apt"
+    elif [[ "$TERMUX_APP_PACKAGE_MANAGER" == "pacman" ]]; then
+        PACKAGE_MANAGER="pacman"
+    else
+        _print_failed "${C} Could not detact your package manager, Switching To ${C}pkg ${W}"
+    fi
 }
 
 # will check if the package is already installed or not, if it installed then it will reinstall it and at the end it will print success/failed message
@@ -132,8 +132,8 @@ _package_install_and_check() {
             if [[ $package_name == *"*"* ]]; then
                 echo "${R}[${C}-${R}]${C} Processing wildcard pattern: $package_name ${W}"
                 packages_by_name=$(apt-cache search "${package_name%*}" | awk "/^${package_name}/ {print \$1}")
-				packages_by_description=$(apt-cache search "${package_name%*}" | grep -Ei "\b${package_name%*}\b" | awk '{print $1}')
-				packages=$(echo -e "${packages_by_name}\n${packages_by_description}" | sort -u)
+                packages_by_description=$(apt-cache search "${package_name%*}" | grep -Ei "\b${package_name%*}\b" | awk '{print $1}')
+                packages=$(echo -e "${packages_by_name}\n${packages_by_description}" | sort -u)
                 for pkgs in $packages; do
                     echo "${R}[${C}-${R}]${G}${BOLD} Installing matched package: ${C}$pkgs ${W}"
                     if dpkg -s "$pkgs" >/dev/null 2>&1; then
@@ -165,21 +165,21 @@ _package_install_and_check() {
         fi
 
         # Final verification
-		if [[ $package_name != *"*"* ]]; then
-        	if [[ "$PACKAGE_MANAGER" == "pacman" ]]; then
-        	    if pacman -Qi "$package_name" >/dev/null 2>&1; then
-        	        _print_success "$package_name installed successfully"
-        	    else
-        	        _print_failed "$package_name installation failed ${W}"
-        	    fi
-        	else
-        	    if dpkg -s "$package_name" >/dev/null 2>&1; then
-        	        _print_success "$package_name installed successfully"
-        	    else
-        	        _print_failed "$package_name installation failed ${W}"
-        	    fi
-        	fi
-		fi
+        if [[ $package_name != *"*"* ]]; then
+            if [[ "$PACKAGE_MANAGER" == "pacman" ]]; then
+                if pacman -Qi "$package_name" >/dev/null 2>&1; then
+                    _print_success "$package_name installed successfully"
+                else
+                    _print_failed "$package_name installation failed ${W}"
+                fi
+            else
+                if dpkg -s "$package_name" >/dev/null 2>&1; then
+                    _print_success "$package_name installed successfully"
+                else
+                    _print_failed "$package_name installation failed ${W}"
+                fi
+            fi
+        fi
     done
     echo ""
 }
@@ -190,25 +190,25 @@ INSTALL_DIR=""
 
 _step_install_dependencies() {
     echo "${R}[${G}-${R}]${G} Installing the dependencies...${W}"
-    
+
     # Core utilities
     _package_install_and_check "zenity xclip"
-    
+
     # Archive handling
     _package_install_and_check "bzip2 gzip tar unzip zip xorriso"
-    
+
     # Image processing
     _package_install_and_check "optipng imagemagick"
-    
+
     # Document processing
     _package_install_and_check "ghostscript qpdf poppler"
-    
+
     # Multimedia
     _package_install_and_check "ffmpeg"
-    
+
     # File utilities
     _package_install_and_check "rdfind exiftool"
-    
+
     # Other utilities
     _package_install_and_check "perl rhash pandoc p7zip xz-utils"
 
@@ -223,24 +223,24 @@ _step_install_dependencies() {
 
 _setup_file_manager() {
     local file_manager=""
-    
+
     # Loop through compatible file managers.
     for file_manager in "${COMPATIBLE_FILE_MANAGERS[@]}"; do
         # Check if the file manager command exists.
         if _command_exists "$file_manager"; then
             case "$file_manager" in
-                "caja")
-                    INSTALL_DIR="$HOME/.config/caja/scripts"
-                    FILE_MANAGER="caja"
-                    ;;
-                "pcmanfm-qt")
-                    INSTALL_DIR="$HOME/.local/share/scripts"
-                    FILE_MANAGER="pcmanfm-qt"
-                    ;;
-                "thunar")
-                    INSTALL_DIR="$HOME/.local/share/scripts"
-                    FILE_MANAGER="thunar"
-                    ;;
+            "caja")
+                INSTALL_DIR="$HOME/.config/caja/scripts"
+                FILE_MANAGER="caja"
+                ;;
+            "pcmanfm-qt")
+                INSTALL_DIR="$HOME/.local/share/scripts"
+                FILE_MANAGER="pcmanfm-qt"
+                ;;
+            "thunar")
+                INSTALL_DIR="$HOME/.local/share/scripts"
+                FILE_MANAGER="thunar"
+                ;;
             esac
 
             # Create the installation directory if it doesn't exist.
@@ -389,53 +389,53 @@ _step_install_menus_pcmanfm() {
 
     # Create a '.desktop' file for each script.
     while IFS="" read -r -d "" filename; do
-            name=${filename##*/}
+        name=${filename##*/}
 
-            # Set the mime requirements.
-            local par_recursive=""
-            local par_select_mime=""
-            par_recursive=$(_get_script_parameter_value "$filename" "par_recursive")
-            par_select_mime=$(_get_script_parameter_value "$filename" "par_select_mime")
+        # Set the mime requirements.
+        local par_recursive=""
+        local par_select_mime=""
+        par_recursive=$(_get_script_parameter_value "$filename" "par_recursive")
+        par_select_mime=$(_get_script_parameter_value "$filename" "par_select_mime")
 
-            if [[ -z "$par_select_mime" ]]; then
-                local par_type=""
-                par_type=$(_get_script_parameter_value "$filename" "par_type")
+        if [[ -z "$par_select_mime" ]]; then
+            local par_type=""
+            par_type=$(_get_script_parameter_value "$filename" "par_type")
 
-                case "$par_type" in
-                "directory") par_select_mime="inode/directory" ;;
-                "all") par_select_mime="all/all" ;;
-                "file") par_select_mime="all/allfiles" ;;
-                *) par_select_mime="all/allfiles" ;;
-                esac
-            fi
+            case "$par_type" in
+            "directory") par_select_mime="inode/directory" ;;
+            "all") par_select_mime="all/all" ;;
+            "file") par_select_mime="all/allfiles" ;;
+            *) par_select_mime="all/allfiles" ;;
+            esac
+        fi
 
-            if [[ "$par_recursive" == "true" ]]; then
-                case "$par_select_mime" in
-                "inode/directory") : ;;
-                "all/all") : ;;
-                "all/allfiles") par_select_mime="all/all" ;;
-                *) par_select_mime+=";inode/directory" ;;
-                esac
-            fi
+        if [[ "$par_recursive" == "true" ]]; then
+            case "$par_select_mime" in
+            "inode/directory") : ;;
+            "all/all") : ;;
+            "all/allfiles") par_select_mime="all/all" ;;
+            *) par_select_mime+=";inode/directory" ;;
+            esac
+        fi
 
-            par_select_mime="$par_select_mime;"
-            # shellcheck disable=SC2001
-            par_select_mime=$(sed "s|/;|/*;|g" <<<"$par_select_mime")
+        par_select_mime="$par_select_mime;"
+        # shellcheck disable=SC2001
+        par_select_mime=$(sed "s|/;|/*;|g" <<<"$par_select_mime")
 
-            local desktop_filename=""
-            desktop_filename="${desktop_menus_dir}/${name}.desktop"
-            {
-                printf "%s\n" "[Desktop Entry]"
-                printf "%s\n" "Type=Action"
-                printf "%s\n" "Name=$name"
-                printf "%s\n" "Profiles=scriptAction"
-                printf "\n"
-                printf "%s\n" "[X-Action-Profile scriptAction]"
-                printf "%s\n" "MimeTypes=$par_select_mime"
-                printf "%s\n" "Exec=bash \"$filename\" %F"
-            } >"$desktop_filename"
-            chmod +x "$desktop_filename"
-        done < <(find -L "$INSTALL_DIR" -mindepth 2 -type f ! -path "*.git*" ! -path "*.assets*" -print0 2>/dev/null | sort --zero-terminated)
+        local desktop_filename=""
+        desktop_filename="${desktop_menus_dir}/${name}.desktop"
+        {
+            printf "%s\n" "[Desktop Entry]"
+            printf "%s\n" "Type=Action"
+            printf "%s\n" "Name=$name"
+            printf "%s\n" "Profiles=scriptAction"
+            printf "\n"
+            printf "%s\n" "[X-Action-Profile scriptAction]"
+            printf "%s\n" "MimeTypes=$par_select_mime"
+            printf "%s\n" "Exec=bash \"$filename\" %F"
+        } >"$desktop_filename"
+        chmod +x "$desktop_filename"
+    done < <(find -L "$INSTALL_DIR" -mindepth 2 -type f ! -path "*.git*" ! -path "*.assets*" -print0 2>/dev/null | sort --zero-terminated)
 
     echo "${R}[${G}✓${R}]${G} PCManFM-Qt menus installed successfully${W}"
 }
@@ -445,24 +445,24 @@ _step_install_menus_thunar() {
 
     local menus_file="$HOME/.config/Thunar/uca.xml"
     local accels_file="$HOME/.config/Thunar/accels.scm"
-    
+
     # Create directories if they don't exist
     mkdir -p "$(dirname "$menus_file")"
-    
+
     # Backup existing files
     _check_and_backup "$menus_file"
     _check_and_backup "$accels_file"
-    
+
     # First create the menu actions
-    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > "$menus_file"
-    echo "<actions>" >> "$menus_file"
+    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"$menus_file"
+    echo "<actions>" >>"$menus_file"
 
     # Process each script file for menu actions
     while IFS= read -r -d '' script_file; do
         local menu_name=""
         local menu_path=""
         local unique_id=""
-        
+
         menu_name=$(basename -- "$script_file")
         menu_path=$(dirname -- "$script_file" | sed "s|$INSTALL_DIR/||" | sed 's|/|/|g')
         menu_path="Scripts/$menu_path"
@@ -486,11 +486,11 @@ _step_install_menus_thunar() {
             echo "    <video-files/>"
             echo "    <other-files/>"
             echo "</action>"
-        } >> "$menus_file"
+        } >>"$menus_file"
 
     done < <(find -L "$INSTALL_DIR" -mindepth 2 -type f ! -path "*.git*" ! -path "*.assets*" -print0 2>/dev/null | sort --zero-terminated)
 
-    echo "</actions>" >> "$menus_file"
+    echo "</actions>" >>"$menus_file"
 
     # Then set up the keyboard shortcuts
     _step_install_shortcuts_thunar "$accels_file"
@@ -504,10 +504,10 @@ _step_install_menus() {
     echo "${R}[${G}-${R}]${G} Installing file manager menus...${W}"
 
     case "$FILE_MANAGER" in
-    "pcmanfm-qt") 
-        _step_install_menus_pcmanfm 
+    "pcmanfm-qt")
+        _step_install_menus_pcmanfm
         ;;
-    "thunar") 
+    "thunar")
         # First create menus, then shortcuts
         _step_install_menus_thunar
         _step_install_shortcuts_thunar "$HOME/.config/Thunar/accels.scm"
@@ -582,7 +582,7 @@ _check_files_copied_successfully() {
 
 main() {
     echo "${R}[${G}*${R}]${G} Starting installation...${W}"
-    
+
     # First check and setup file manager
     _setup_file_manager || {
         _print_failed "Failed to setup file manager"
